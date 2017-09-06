@@ -1,6 +1,9 @@
 (ns logical-interpreter)
 (require '[clojure.string :as str])
 
+(def factMap {})
+(def ruleMap {})
+
 (defn isValidRule
   [entry]
   (not (nil? (re-find #"^[^\(]*\([^)]*\) :- [^\(]*\([^)]*\), [^\(]*\([^)]*\)$" entry)))
@@ -13,21 +16,27 @@
 
 (defn processValidFact
   [fact factMap]
-  (def factMap {})
-  ;(assoc factMap {(get fact 0) (get fact 1)})
-
+  (def allTogether (str/replace fact #"( *\( *| *\) *| *, *)" ""))
+  (def factMap (assoc factMap  allTogether 1))
+  nil
 )
 
-(defn operateElement
-  [element]
+(defn processValidRule
+  [rule ruleMap]
+
+  nil
+)
+
+(defn operateInputElement
+  [element factMap]
+  (def case false)
   (if (isValidRule element)
-    (def case (str/split element #"(:-)"))
+    (processValidRule element ruleMap)
+    (def case true)
   )
   (if (isValidFact element)
-    (def case (str/split element #"(\(|\))"))
-  )
-  (if-not (or (isValidFact element) (isValidRule element))
-    (def case nil)
+    (processValidFact element factMap)
+    (def case true)
   )
   case
 )
@@ -37,8 +46,13 @@
   either input can't be parsed, returns nil"
   [database query]
   (def inputParsed (str/split (str/replace parent-database #"(\t|\n)" "") #"\."))
+  (def validInput true)
   (for [element inputParsed]
-    (println (operateElement element))
+    (and (operateInputElement element factMap) validInput)
+  )
+  (println factMap)
+  (if validInput
+
   )
   nil
 )
