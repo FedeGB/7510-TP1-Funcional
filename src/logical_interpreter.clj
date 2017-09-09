@@ -6,7 +6,7 @@
 
 (defn isValidRule
   [entry]
-  (not (nil? (re-find #"^[^\(]*\([^)]*\) :- [^\(]*\([^)]*\), [^\(]*\([^)]*\)$" entry)))
+  (not (nil? (re-find #"^[^\(]*\([^)]*\) :- ([^\(]*\([^)]*\), )+([^\(]*\([^)]*\))$" entry)))
 )
 
 (defn isValidFact
@@ -14,43 +14,57 @@
   (not (nil? (re-find #"^[^\(]*\([^)]*\)$" entry)))
 )
 
+(defn putTogether
+  [input]
+  (str/replace input #"( *\( *| *\) *| *, *)" "")
+)
+
 (defn processValidFact
   [fact factMap]
-  (def allTogether (str/replace fact #"( *\( *| *\) *| *, *)" ""))
+  (def allTogether (putTogether fact))
   (def factMap (assoc factMap  allTogether 1))
-  nil
+  true
 )
 
 (defn processValidRule
   [rule ruleMap]
-
-  nil
+  (def separated (str/split (str/replace rule #" " "") #":-"))
+  (def ruleSide (get separated 0))
+  (def factSide (get separated 1))
+  (def ruleName (get (str/split ruleSide #"\(") 0))
+  (def variables (str/split (str/replace (get (str/split ruleSide #"\(") 1) #"\)" "") #","))
+  (def processedFacts (map putTogether (str/split factSide #"\) *,")))
+  (def ruleList [(str (count variables))])
+  (def ruleList (concat ruleList variables))
+  (def ruleList (concat ruleList processedFacts))
+  (def ruleMap (assoc ruleMap ruleName ruleList))
+  true
 )
 
 (defn operateInputElement
-  [element factMap]
-  (def case false)
+  [element factMap ruleMap]
   (if (isValidRule element)
-    (processValidRule element ruleMap)
-    (def case true)
+    (def validRule (processValidRule element ruleMap))
+    (def validRule false)
   )
   (if (isValidFact element)
-    (processValidFact element factMap)
-    (def case true)
+    (def validFact (processValidFact element factMap))
+    (def validFact false)
   )
-  case
+  (or validFact validRule)
 )
 
 (defn evaluate-query
   "Returns true if the rules and facts in database imply query, false if not. If
   either input can't be parsed, returns nil"
   [database query]
-  (def inputParsed (str/split (str/replace parent-database #"(\t|\n)" "") #"\."))
+  (def inputParsed (str/split (str/replace parent-database #"(\t|\n)" ".") #"\.+"))
   (def validInput true)
   (for [element inputParsed]
-    (and (operateInputElement element factMap) validInput)
+    (def validInput (and (operateInputElement element factMap ruleMap) validInput))
   )
   (println factMap)
+  (println ruleMap)
   (if validInput
 
   )
