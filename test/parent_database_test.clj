@@ -2,8 +2,7 @@
   (:require [clojure.test :refer :all]
             [logical-interpreter :refer :all]))
 
-(def parent-database "
-	varon(juan).
+(def parent-database "varon(juan).
 	varon(pepe).
 	varon(hector).
 	varon(roberto).
@@ -16,8 +15,7 @@
 	padre(roberto, alejandro).
 	padre(roberto, cecilia).
 	hijo(X, Y) :- varon(X), padre(Y, X).
-	hija(X, Y) :- mujer(X), padre(Y, X).
-")
+	hija(X, Y) :- mujer(X), padre(Y, X).")
 
 (deftest parent-database-fact-test
   (testing "varon(juan) should be true"
