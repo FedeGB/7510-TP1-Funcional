@@ -31,17 +31,28 @@
   true
   )
 
+(defn obtainValuesFromBrackets
+  [input]
+  (str/split (str/replace (get (str/split input #"\(") 1) #"\)" "") #",")
+)
+
+(defn generateRuleList
+  [ruleSide factSide]
+  (def variables (obtainValuesFromBrackets ruleSide))
+  (def processedFacts (map putTogether (str/split factSide #"\) *,")))
+  (def ruleList [(count variables)])
+  (def ruleList (into [] (concat ruleList variables)))
+  (def ruleList (into [] (concat ruleList processedFacts)))
+  ruleList
+)
+
 (defn processValidRule
   [rule ruleMap]
   (def separated (str/split (str/replace rule #" " "") #":-"))
   (def ruleSide (get separated 0))
   (def factSide (get separated 1))
   (def ruleName (get (str/split ruleSide #"\(") 0))
-  (def variables (str/split (str/replace (get (str/split ruleSide #"\(") 1) #"\)" "") #","))
-  (def processedFacts (map putTogether (str/split factSide #"\) *,")))
-  (def ruleList [(count variables)])
-  (def ruleList (into [] (concat ruleList variables)))
-  (def ruleList (into [] (concat ruleList processedFacts)))
+  (def ruleList (generateRuleList ruleSide factSide))
   (def ruleMap (assoc ruleMap ruleName ruleList))
   true
   )
@@ -97,7 +108,7 @@
 (defn evaluateQueryRule
   [query factMap ruleMap]
   (def ruleName (get (str/split query #"\(") 0))
-  (def ruleValues (str/split (str/replace (get (str/split query #"\(") 1) #"\)" "") #","))
+  (def ruleValues (obtainValuesFromBrackets query))
   (if (contains? ruleMap ruleName)
     (evaluateFactsOnRule factMap (get ruleMap ruleName) ruleValues)
     false

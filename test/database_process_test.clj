@@ -3,10 +3,6 @@
             [logical-interpreter :refer :all]))
 
 (deftest database-fact-process-test
-  (testing "Put together utility function"
-    (is (= (putTogether "padre(juan, pepe)")
-           "padrejuanpepe"))
-  )
   (testing "Process a valid fact with single value"
     (processValidFact "varon(juan)" factMap)
     (is (= (contains? factMap "varonjuan")
