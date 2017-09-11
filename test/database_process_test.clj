@@ -60,7 +60,7 @@
     (is (= (get ruleData 5)
            "padreYX"))
   )
-  (testing "Process a valid rule, correct rule structure"
+  (testing "Process a valid fact"
     (operateInputElement "padre(juan, papo)" factMap ruleMap)
     (is (= (contains? factMap "padrejuanpapo")
            true))
